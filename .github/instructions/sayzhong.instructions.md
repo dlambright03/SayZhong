@@ -1,3 +1,6 @@
+---
+applyTo: '**'
+---
 All code is to be written in Python 3.11
 
 We use Github issues to track bugs and feature requests. Please use the issue tracker to report any bugs or request new features. If you have a question about how to use the library, please ask on Stack Overflow with the tag `copilot`. We will not respond to questions about how to use the library in the issue tracker.

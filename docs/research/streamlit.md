@@ -1,73 +1,67 @@
-Streamlit is a powerful open-source Python library that makes it easy to build and share custom web apps for machine learning and data science. While it's known for its simplicity and speed, it also offers advanced features that can support more complex applications. Here's a breakdown of its advanced capabilities and limitations: 
+# Streamlit: Advanced Features and Limitations
 
- 
+Streamlit is a powerful open-source Python library that makes it easy to build and share custom web apps for machine learning and data science. While it's known for its simplicity and speed, it also offers advanced features that can support more complex applications. Here's a breakdown of its advanced capabilities and limitations:
 
-🔧 Advanced Features of Streamlit 
+## Advanced Features of Streamlit
 
-Custom Components 
+### Custom Components
 
-You can build or integrate JavaScript-based components using the streamlit.components.v1 module. 
+- You can build or integrate JavaScript-based components using the `streamlit.components.v1` module
+- Enables embedding of interactive visualizations like Plotly Dashboards, D3.js charts, or even full React apps
 
-Enables embedding of interactive visualizations like Plotly Dashboards, D3.js charts, or even full React apps. 
+### Session State Management
 
-Session State Management 
+- `st.session_state` allows you to maintain state across user interactions, enabling multi-step workflows, form memory, and dynamic UI updates
 
-st.session_state allows you to maintain state across user interactions, enabling multi-step workflows, form memory, and dynamic UI updates. 
+### Theming and Layout Customization
 
-Theming and Layout Customization 
+- Custom themes via `.streamlit/config.toml` or programmatically
+- Layouts using `st.columns`, `st.expander`, and `st.container` for more structured UIs
 
-Custom themes via .streamlit/config.toml or programmatically. 
+### Bi-directional Communication
 
-Layouts using st.columns, st.expander, and st.container for more structured UIs. 
+- With custom components, you can send data back and forth between Python and JavaScript, enabling real-time updates and interactivity
 
-Bi-directional Communication 
+### Caching and Performance Optimization
 
-With custom components, you can send data back and forth between Python and JavaScript, enabling real-time updates and interactivity. 
+- `@st.cache_data` and `@st.cache_resource` decorators help optimize performance by caching expensive computations or data loads
 
-Caching and Performance Optimization 
+### Authentication and Deployment
 
-@st.cache_data and @st.cache_resource decorators help optimize performance by caching expensive computations or data loads. 
+- Streamlit Community Cloud supports simple OAuth-based login
+- For enterprise use, you can integrate with SSO providers and deploy via Docker, Kubernetes, or cloud platforms
 
-Authentication and Deployment 
+### Streaming and Real-Time Updates
 
-Streamlit Community Cloud supports simple OAuth-based login. 
+- `st.empty()` and `st.spinner()` allow for dynamic content updates and loading indicators
+- Useful for live dashboards or progress tracking
 
-For enterprise use, you can integrate with SSO providers and deploy via Docker, Kubernetes, or cloud platforms. 
+### File Uploads and Downloads
 
-Streaming and Real-Time Updates 
+- `st.file_uploader` and `st.download_button` support user interaction with files, enabling data ingestion and export
 
-st.empty() and st.spinner() allow for dynamic content updates and loading indicators. 
+## Limitations of Streamlit
 
-Useful for live dashboards or progress tracking. 
+### Limited Native Interactivity
 
-File Uploads and Downloads 
+- Unlike Dash or Shiny, Streamlit lacks native support for complex interactivity like callbacks between widgets without workarounds
 
-st.file_uploader and st.download_button support user interaction with files, enabling data ingestion and export. 
+### Single-Threaded Execution
 
- 
+- Streamlit apps run in a single Python thread, which can be a bottleneck for CPU-intensive tasks unless offloaded to background threads or services
 
-⚠️ Limitations of Streamlit 
+### No Built-in Database ORM
 
-Limited Native Interactivity 
+- You need to integrate external libraries (like SQLAlchemy) for database interactions
 
-Unlike Dash or Shiny, Streamlit lacks native support for complex interactivity like callbacks between widgets without workarounds. 
+### Limited Multi-User Support
 
-Single-Threaded Execution 
+- While Streamlit handles multiple sessions, it doesn't natively support collaborative or multi-user editing features
 
-Streamlit apps run in a single Python thread, which can be a bottleneck for CPU-intensive tasks unless offloaded to background threads or services. 
+### JavaScript Dependency for Custom Components
 
-No Built-in Database ORM 
+- Advanced UI elements require JavaScript knowledge, which may be a barrier for Python-only developers
 
-You need to integrate external libraries (like SQLAlchemy) for database interactions. 
+### Security and Access Control
 
-Limited Multi-User Support 
-
-While Streamlit handles multiple sessions, it doesn't natively support collaborative or multi-user editing features. 
-
-JavaScript Dependency for Custom Components 
-
-Advanced UI elements require JavaScript knowledge, which may be a barrier for Python-only developers. 
-
-Security and Access Control 
-
-Streamlit Community Cloud has basic access control; enterprise-grade security requires self-hosting or third-party tools. 
+- Streamlit Community Cloud has basic access control; enterprise-grade security requires self-hosting or third-party tools

@@ -1,0 +1,151 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'infrastructure/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy (dev, staging, prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate Bicep Templates
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Validate Bicep Template
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'sayzhong-rg'
+          template: ./infrastructure/main.bicep
+          parameters: ./infrastructure/parameters/dev.parameters.json
+          deploymentMode: Validate
+
+  deploy-dev:
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
+    needs: validate
+    runs-on: ubuntu-latest
+    name: Deploy to Development
+    environment: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name sayzhong-dev-rg \
+            --location "East US" \
+            --tags Environment=dev Application=sayzhong
+
+      - name: Deploy Infrastructure
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'sayzhong-dev-rg'
+          template: ./infrastructure/main.bicep
+          parameters: ./infrastructure/parameters/dev.parameters.json
+          deploymentName: 'infrastructure-${{ github.run_number }}'
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    needs: validate
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name sayzhong-staging-rg \
+            --location "East US" \
+            --tags Environment=staging Application=sayzhong
+
+      - name: Deploy Infrastructure
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'sayzhong-staging-rg'
+          template: ./infrastructure/main.bicep
+          parameters: ./infrastructure/parameters/staging.parameters.json
+          deploymentName: 'infrastructure-${{ github.run_number }}'
+
+  deploy-prod:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+    needs: validate
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name sayzhong-prod-rg \
+            --location "East US" \
+            --tags Environment=prod Application=sayzhong
+
+      - name: Deploy Infrastructure
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'sayzhong-prod-rg'
+          template: ./infrastructure/main.bicep
+          parameters: ./infrastructure/parameters/prod.parameters.json
+          deploymentName: 'infrastructure-${{ github.run_number }}'
+
+      - name: Output Deployment Information
+        run: |
+          echo "Production deployment completed successfully!"
+          echo "Check the Azure portal for deployment details."

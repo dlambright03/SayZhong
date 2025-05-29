@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "East US"
+    },
+    "appName": {
+      "value": "sayzhong"
+    },
+    "azureAdTenantId": {
+      "value": "your-tenant-id-here"
+    },
+    "azureAdClientId": {
+      "value": "your-client-id-here"
+    },
+    "azureAdClientSecret": {
+      "value": "your-client-secret-here"
+    },
+    "openAiApiKey": {
+      "value": "your-openai-key-here"
+    },
+    "openAiEndpoint": {
+      "value": "https://your-openai-endpoint.openai.azure.com/"
+    }
+  }
+}

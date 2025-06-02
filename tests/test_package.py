@@ -1,7 +1,5 @@
 """Tests for the main SayZhong package."""
 
-import pytest
-
 from sayzhong import __author__, __version__
 
 

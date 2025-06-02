@@ -13,9 +13,11 @@ storage_account_replication_type = "GRS"
 key_vault_sku_name = "standard"
 
 # Redis Configuration
-redis_capacity = 1
-redis_family   = "C"
-redis_sku_name = "Standard"
+redis_sku = {
+  capacity = 1
+  family   = "C"
+  name     = "Standard"
+}
 
 # Container Registry Configuration
 container_registry_sku = "Standard"

@@ -180,14 +180,21 @@ cleanup_resources() {
     local environment=$1
     local resource_group="sayzhong-${environment}-rg"
     
-    log_warn "This will delete ALL resources in the resource group: $resource_group"
+    log_warn "This will destroy ALL Terraform-managed resources in environment: $environment"
     read -p "Are you sure you want to continue? (y/N): " -n 1 -r
     echo
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
+        cd "$INFRASTRUCTURE_DIR"
+        
+        log_info "Destroying Terraform resources for environment: $environment"
+        terraform destroy \
+            -var-file="environments/${environment}.tfvars" \
+            -auto-approve
+        
         log_info "Deleting resource group: $resource_group"
         az group delete --name "$resource_group" --yes --no-wait
-        log_info "Resource group deletion initiated (running in background)"
+        log_info "Resource cleanup completed"
     else
         log_info "Cleanup cancelled."
     fi
@@ -213,12 +220,13 @@ main() {
         validate)
             validate_environment "$environment"
             check_prerequisites
-            log_info "Validating Bicep template for environment: $environment"
-            az deployment group validate \
-                --resource-group "sayzhong-${environment}-rg" \
-                --template-file "$INFRASTRUCTURE_DIR/main.bicep" \
-                --parameters "@$INFRASTRUCTURE_DIR/parameters/${environment}.parameters.json" \
-                --output table
+            log_info "Validating Terraform configuration for environment: $environment"
+            cd "$INFRASTRUCTURE_DIR"
+            terraform init
+            terraform validate
+            terraform plan \
+                -var-file="environments/${environment}.tfvars" \
+                -out="tfplan-${environment}"
             ;;
         *)
             echo "Usage: $0 [deploy|cleanup|validate] [dev|staging|prod]"
@@ -226,7 +234,7 @@ main() {
             echo "Commands:"
             echo "  deploy    - Deploy infrastructure to specified environment (default)"
             echo "  cleanup   - Delete all resources in the specified environment"
-            echo "  validate  - Validate Bicep template for specified environment"
+            echo "  validate  - Validate Terraform configuration for specified environment"
             echo ""
             echo "Environments:"
             echo "  dev       - Development environment (default)"

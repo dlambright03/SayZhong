@@ -1,19 +1,23 @@
-.PHONY: help install install-dev test test-cov lint format clean build docs serve-docs
+.PHONY: help install install-dev test test-cov lint format clean build docs serve-docs infra-init infra-plan infra-apply infra-destroy
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  install      - Install package in development mode"
-	@echo "  install-dev  - Install package with development dependencies"
-	@echo "  test         - Run tests"
-	@echo "  test-cov     - Run tests with coverage report"
-	@echo "  lint         - Run all linting tools"
-	@echo "  format       - Format code with black and isort"
-	@echo "  clean        - Remove build artifacts and cache files"
-	@echo "  build        - Build package for distribution"
-	@echo "  docs         - Build documentation"
-	@echo "  serve-docs   - Serve documentation locally"
-	@echo "  pre-commit   - Install pre-commit hooks"
+	@echo "  install         - Install package in development mode"
+	@echo "  install-dev     - Install package with development dependencies"
+	@echo "  test            - Run tests"
+	@echo "  test-cov        - Run tests with coverage report"
+	@echo "  lint            - Run all linting tools"
+	@echo "  format          - Format code with black and isort"
+	@echo "  clean           - Remove build artifacts and cache files"
+	@echo "  build           - Build package for distribution"
+	@echo "  docs            - Build documentation"
+	@echo "  serve-docs      - Serve documentation locally"
+	@echo "  pre-commit      - Install pre-commit hooks"
+	@echo "  infra-init      - Initialize Terraform"
+	@echo "  infra-plan      - Plan infrastructure changes (specify ENV=dev|staging|prod)"
+	@echo "  infra-apply     - Apply infrastructure changes (specify ENV=dev|staging|prod)"
+	@echo "  infra-destroy   - Destroy infrastructure (specify ENV=dev|staging|prod)"
 
 # Installation
 install:
@@ -67,3 +71,20 @@ serve-docs:
 # Development setup
 pre-commit:
 	pre-commit install
+
+# Infrastructure management
+infra-init:
+	cd infrastructure && terraform init
+
+infra-plan:
+	@if [ -z "$(ENV)" ]; then echo "Please specify ENV=dev|staging|prod"; exit 1; fi
+	cd infrastructure && terraform plan -var-file="environments/$(ENV).tfvars"
+
+infra-apply:
+	@if [ -z "$(ENV)" ]; then echo "Please specify ENV=dev|staging|prod"; exit 1; fi
+	cd infrastructure && terraform apply -var-file="environments/$(ENV).tfvars"
+
+infra-destroy:
+	@if [ -z "$(ENV)" ]; then echo "Please specify ENV=dev|staging|prod"; exit 1; fi
+	@echo "WARNING: This will destroy all infrastructure for $(ENV) environment!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; echo; if [[ $$REPLY =~ ^[Yy]$$ ]]; then cd infrastructure && terraform destroy -var-file="environments/$(ENV).tfvars"; fi

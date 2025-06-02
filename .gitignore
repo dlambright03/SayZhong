@@ -198,3 +198,15 @@ Thumbs.db
 logs/
 temp/
 *.log
+
+# Terraform
+.terraform/
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+tfplan-*
+.terraform.lock.hcl
+
+# Infrastructure deployment outputs
+deployment-outputs-*.json

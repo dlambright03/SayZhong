@@ -105,7 +105,7 @@ resource "azurerm_redis_cache" "main" {
   capacity            = var.redis_sku.capacity
   family              = var.redis_sku.family
   sku_name           = var.redis_sku.name
-  enable_non_ssl_port = false
+  non_ssl_port_enabled = false
   minimum_tls_version = "1.2"
   public_network_access_enabled = true
 

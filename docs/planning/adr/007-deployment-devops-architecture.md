@@ -359,50 +359,51 @@ class DeploymentConfig:
 
 ### Infrastructure as Code (IaC)
 
-We will use **Azure Resource Manager (ARM) Templates** with **Bicep** for infrastructure deployment:
+We will use **Terraform** for infrastructure deployment, providing better cross-cloud portability and mature infrastructure-as-code capabilities:
 
 #### Infrastructure Components
 - **Azure Container Apps Environment** - Application hosting platform
 - **Azure Container Registry** - Container image storage
 - **Azure Key Vault** - Secret and configuration management
-- **Azure Storage Account** - User data and application assets
+- **Azure Storage Account** - User data and application assets with Data Lake Gen2
 - **Azure Application Insights** - Monitoring and telemetry
+- **Azure Redis Cache** - Session management and caching
 - **Azure AD B2C** - User authentication and identity management
 
-#### Bicep Template Structure
+#### Terraform Configuration Structure
 ```
 infrastructure/
-├── main.bicep                    # Main infrastructure template
-├── modules/
-│   ├── container-apps.bicep      # Container Apps configuration
-│   ├── key-vault.bicep          # Key Vault setup
-│   ├── storage.bicep            # Storage account configuration
-│   └── monitoring.bicep         # Application Insights setup
-└── parameters/
-    ├── dev.parameters.json      # Development environment
-    ├── staging.parameters.json  # Staging environment
-    └── prod.parameters.json     # Production environment
+├── main.tf                      # Main infrastructure resources
+├── variables.tf                 # Input variables and validation
+├── outputs.tf                   # Output values for integration
+├── terraform.tf                 # Provider and backend configuration
+├── terraform.tfvars.example    # Example configuration
+└── environments/
+    ├── dev.tfvars              # Development environment
+    ├── staging.tfvars          # Staging environment
+    └── prod.tfvars             # Production environment
 ```
 
 #### Deployment Strategy
 - **Environment Isolation**: Separate resource groups per environment
-- **Parameter-driven**: Environment-specific configurations via parameter files
-- **Incremental Deployment**: ARM template deployment mode for updates
-- **Validation**: Template validation before deployment
-- **Rollback Support**: ARM deployment history for quick rollbacks
+- **Variable-driven**: Environment-specific configurations via .tfvars files
+- **State Management**: Terraform state for infrastructure tracking
+- **Plan & Apply**: Terraform plan validation before deployment
+- **Rollback Support**: Terraform state history for infrastructure versioning
 
 #### GitHub Actions Integration
 Infrastructure deployment integrated into CI/CD pipeline:
-1. **Infrastructure Validation** - Bicep template validation
+1. **Infrastructure Validation** - Terraform configuration validation
 2. **Environment Deployment** - Deploy infrastructure before application
 3. **Configuration Update** - Update Key Vault secrets post-deployment
 4. **Health Verification** - Verify infrastructure health before app deployment
 
 ### Key Configuration Files
 - `Dockerfile` - Container definition
-- `.github/workflows/deploy.yml` - CI/CD pipeline
+- `.github/workflows/deploy-infrastructure.yml` - Infrastructure CI/CD pipeline
 - `docker-compose.yml` - Local development
-- `infrastructure/main.bicep` - Infrastructure as Code
-- `config/deployment.py` - Deployment configuration management
+- `infrastructure/main.tf` - Infrastructure as Code
+- `infrastructure/variables.tf` - Infrastructure configuration variables
+- `scripts/deploy-infrastructure.sh` - Deployment automation script
 
-This architecture provides a solid foundation for deploying SayZhong while maintaining flexibility for future growth and ensuring integration with our chosen Azure ecosystem.
+This architecture provides a solid foundation for deploying SayZhong while maintaining flexibility for future growth, cross-cloud portability, and ensuring integration with our chosen Azure ecosystem.

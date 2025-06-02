@@ -1,0 +1,17 @@
+# Azure AI Foundry Local integration requirements
+foundry-local>=0.0.1
+semantic-kernel>=1.32.0
+openai>=1.82.1
+
+# Development and testing
+pytest>=8.4.0
+pytest-asyncio>=1.0.0
+pytest-mock>=3.14.1
+
+# Additional utilities for async and HTTP operations
+aiohttp>=3.9.0
+pydantic>=2.5.0
+requests>=2.31.0
+
+# Type hints and development
+typing-extensions>=4.8.0

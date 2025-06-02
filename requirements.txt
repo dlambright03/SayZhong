@@ -1,10 +1,24 @@
-# Core dependencies for SayZhong
-# Add your project dependencies here
+# Core dependencies for SayZhong Mandarin Learning Platform
 
-# Example dependencies for a language learning app:
-# requests>=2.31.0
-# fastapi>=0.104.0
-# uvicorn>=0.24.0
-# pydantic>=2.5.0
-# sqlalchemy>=2.0.0
-# python-dotenv>=1.0.0
+# Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Data validation and settings
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+
+# HTTP client
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# AI and Language Processing
+openai>=1.82.1
+semantic-kernel>=1.32.0
+foundry-local>=0.0.1
+
+# Utilities
+typing-extensions>=4.8.0

@@ -1,0 +1,39 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and fill in the values
+
+# Environment configuration
+environment = "dev"
+location    = "East US"
+app_name    = "sayzhong"
+
+# Azure AD B2C configuration
+azure_ad_tenant_id     = "your-tenant-id-here"
+azure_ad_client_id     = "your-client-id-here"
+azure_ad_client_secret = "your-client-secret-here"
+
+# OpenAI configuration
+openai_api_key = "your-openai-key-here"
+openai_endpoint = "https://your-openai-endpoint.openai.azure.com/"
+
+# Redis configuration (optional overrides)
+redis_sku = {
+  name     = "Basic"
+  family   = "C"
+  capacity = 0  # C0 for development
+}
+
+# Container App configuration (optional overrides)
+container_app_cpu    = 0.25
+container_app_memory = "0.5Gi"
+container_app_min_replicas = 1
+container_app_max_replicas = 10
+
+# Log retention (optional override)
+log_retention_days = 30
+
+# Additional tags (optional)
+tags = {
+  Owner       = "Development Team"
+  Project     = "SayZhong"
+  CostCenter  = "Education"
+}

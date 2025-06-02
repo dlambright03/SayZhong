@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # SayZhong Infrastructure Deployment Script
-# This script deploys all Azure resources for the SayZhong application
+# This script deploys all Azure resources for the SayZhong application using Terraform
 
 set -e
 
@@ -44,10 +44,10 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check if Bicep is available
-    if ! az bicep version &> /dev/null; then
-        log_info "Installing Bicep..."
-        az bicep install
+    # Check if Terraform is installed
+    if ! command -v terraform &> /dev/null; then
+        log_error "Terraform is not installed. Please install it first."
+        exit 1
     fi
     
     log_info "Prerequisites check completed."
@@ -78,6 +78,15 @@ deploy_infrastructure() {
     
     log_info "Deploying infrastructure for environment: $environment"
     
+    # Change to infrastructure directory
+    cd "$INFRASTRUCTURE_DIR"
+    
+    # Initialize Terraform if needed
+    if [ ! -d ".terraform" ]; then
+        log_info "Initializing Terraform..."
+        terraform init
+    fi
+    
     # Create resource group if it doesn't exist
     log_info "Creating resource group: $resource_group"
     az group create \
@@ -86,29 +95,31 @@ deploy_infrastructure() {
         --tags Environment="$environment" Application=sayzhong \
         --output none
     
-    # Validate Bicep template
-    log_info "Validating Bicep template..."
-    az deployment group validate \
-        --resource-group "$resource_group" \
-        --template-file "$INFRASTRUCTURE_DIR/main.bicep" \
-        --parameters "@$INFRASTRUCTURE_DIR/parameters/${environment}.parameters.json" \
-        --output none
+    # Validate Terraform configuration
+    log_info "Validating Terraform configuration..."
+    terraform validate
     
     if [ $? -eq 0 ]; then
-        log_info "Template validation successful."
+        log_info "Configuration validation successful."
     else
-        log_error "Template validation failed."
+        log_error "Configuration validation failed."
         exit 1
     fi
     
-    # Deploy infrastructure
-    log_info "Deploying infrastructure (this may take 10-15 minutes)..."
-    az deployment group create \
-        --resource-group "$resource_group" \
-        --template-file "$INFRASTRUCTURE_DIR/main.bicep" \
-        --parameters "@$INFRASTRUCTURE_DIR/parameters/${environment}.parameters.json" \
-        --name "$deployment_name" \
-        --output table
+    # Plan Terraform deployment
+    log_info "Planning Terraform deployment..."
+    terraform plan \
+        -var-file="environments/${environment}.tfvars" \
+        -out="tfplan-${environment}"
+    
+    if [ $? -ne 0 ]; then
+        log_error "Terraform plan failed."
+        exit 1
+    fi
+    
+    # Apply Terraform deployment
+    log_info "Applying infrastructure deployment (this may take 10-15 minutes)..."
+    terraform apply "tfplan-${environment}"
     
     if [ $? -eq 0 ]; then
         log_info "Infrastructure deployment completed successfully!"
@@ -119,17 +130,11 @@ deploy_infrastructure() {
     
     # Get deployment outputs
     log_info "Retrieving deployment outputs..."
-    local outputs=$(az deployment group show \
-        --resource-group "$resource_group" \
-        --name "$deployment_name" \
-        --query properties.outputs \
-        --output json)
-    
-    echo "$outputs" > "$SCRIPT_DIR/../deployment-outputs-${environment}.json"
+    terraform output -json > "$SCRIPT_DIR/../deployment-outputs-${environment}.json"
     log_info "Deployment outputs saved to deployment-outputs-${environment}.json"
     
     # Display important information
-    display_deployment_info "$outputs"
+    display_deployment_info "$(terraform output -json)"
 }
 
 # Display deployment information
@@ -140,11 +145,11 @@ display_deployment_info() {
     log_info "=== Deployment Information ==="
     echo ""
     
-    local app_url=$(echo "$outputs" | jq -r '.containerAppUrl.value // "N/A"')
-    local storage_account=$(echo "$outputs" | jq -r '.storageAccountName.value // "N/A"')
-    local key_vault=$(echo "$outputs" | jq -r '.keyVaultName.value // "N/A"')
-    local container_registry=$(echo "$outputs" | jq -r '.containerRegistryName.value // "N/A"')
-    local managed_identity=$(echo "$outputs" | jq -r '.managedIdentityClientId.value // "N/A"')
+    local app_url=$(echo "$outputs" | jq -r '.container_app_url.value // "N/A"')
+    local storage_account=$(echo "$outputs" | jq -r '.storage_account_name.value // "N/A"')
+    local key_vault=$(echo "$outputs" | jq -r '.key_vault_name.value // "N/A"')
+    local container_registry=$(echo "$outputs" | jq -r '.container_registry_name.value // "N/A"')
+    local managed_identity=$(echo "$outputs" | jq -r '.managed_identity_client_id.value // "N/A"')
     
     echo "Application URL: $app_url"
     echo "Storage Account: $storage_account"

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  foundry-local:
+    image: mcr.microsoft.com/foundry-local:latest
+    profiles: ["ai-testing"]  # Only start when explicitly requested
+    container_name: sayzhong-foundry-local
+    ports:
+      - "8080:8080"
+      - "8081:8081"  # Management API
+    volumes:
+      - foundry-models:/app/models
+      - foundry-cache:/app/cache
+    environment:
+      - FOUNDRY_MODEL=phi-3.5-mini
+      - FOUNDRY_LOG_LEVEL=INFO
+      - FOUNDRY_ENABLE_CORS=true
+      - FOUNDRY_MAX_MEMORY=6G
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '2'
+        reservations:
+          memory: 6G
+          cpus: '1'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # Allow time for model download
+    restart: unless-stopped
+
+volumes:
+  foundry-models:
+    driver: local
+  foundry-cache:
+    driver: local
+
+networks:
+  default:
+    name: sayzhong-dev-network

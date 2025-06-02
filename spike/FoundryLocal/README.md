@@ -49,7 +49,18 @@ Azure AI Foundry Local allows you to run AI models locally on your device, provi
    ```
    
    **Linux**:
-   Download from: https://aka.ms/foundry-local-installer
+   ```bash
+   wget https://aka.ms/foundry-local-installer -O foundry-local-installer.sh
+   chmod +x foundry-local-installer.sh
+   ./foundry-local-installer.sh
+   ```
+
+   **Dev Container/Codespaces**:
+   ```bash
+   # For development/testing without full installation
+   cd /workspaces/SayZhong/spike/FoundryLocal
+   PYTHONPATH=. python examples/basic_chat_demo.py
+   ```
 
 3. **Verify installation**:
    ```bash
@@ -68,14 +79,68 @@ The model will download automatically (may take a few minutes).
 
 ### 2. Run the basic chat example
 
+**With Foundry Local installed**:
 ```bash
-python examples/basic_chat.py
+cd /workspaces/SayZhong/spike/FoundryLocal
+PYTHONPATH=. python examples/basic_chat.py
+```
+
+**Demo mode (without Foundry Local)**:
+```bash
+cd /workspaces/SayZhong/spike/FoundryLocal
+PYTHONPATH=. python examples/basic_chat_demo.py
 ```
 
 ### 3. Try the Mandarin learning example
 
 ```bash
-python examples/semantic_kernel_integration.py
+cd /workspaces/SayZhong/spike/FoundryLocal
+PYTHONPATH=. python examples/semantic_kernel_integration.py
+```
+
+## Dev Container Usage
+
+If you're working in a dev container (like GitHub Codespaces), you have optimized options for resource efficiency:
+
+### 🥇 Demo Mode (Recommended for Daily Development)
+```bash
+cd /workspaces/SayZhong/spike/FoundryLocal
+pip install -r requirements.txt
+PYTHONPATH=. python examples/basic_chat_demo.py
+```
+**Benefits**: Instant startup, minimal resources (~100MB), perfect for development workflow.
+
+### 🥈 AI Testing Mode (For Integration Testing)
+```bash
+# Start sidecar container when real AI testing is needed
+cd /workspaces/SayZhong
+docker-compose -f .devcontainer/docker-compose.ai-testing.yml --profile ai-testing up -d foundry-local
+
+# Run real AI examples
+cd spike/FoundryLocal
+PYTHONPATH=. python examples/basic_chat.py
+
+# Stop to save resources when done
+docker-compose -f .devcontainer/docker-compose.ai-testing.yml --profile ai-testing down
+```
+**Benefits**: Real AI behavior, isolated resources, team-friendly.
+
+### 📚 Detailed Guide
+For comprehensive dev container integration instructions, see:
+- [Dev Container Integration Guide](../../docs/dev-container-foundry-integration.md)
+- [Resource Efficiency Comparison](../../docs/dev-container-foundry-comparison.md)
+
+### 🛠️ Management Script
+Use the helper script for easy AI testing management:
+```bash
+# Start AI testing mode
+/workspaces/SayZhong/scripts/foundry-local-dev.sh start
+
+# Check status and resource usage
+/workspaces/SayZhong/scripts/foundry-local-dev.sh status
+
+# Stop to save resources
+/workspaces/SayZhong/scripts/foundry-local-dev.sh stop
 ```
 
 ## Usage Examples
